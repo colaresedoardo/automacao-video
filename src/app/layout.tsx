@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
-import Providers from "@/components/Providers";
 import { Roboto } from "next/font/google";
+import Providers from "@/components/Providers";
 import Header from "@/components/Header";
+import { getServerSession } from "next-auth";
+import { authOptions } from "./api/auth/[...nextauth]/route";
 
 const roboto = Roboto({
   weight: ["300", "400", "500", "700"],
@@ -14,14 +16,22 @@ export const metadata: Metadata = {
   description: "Next.js + MUI + TypeScript + NextAuth",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  // pega a sessão no servidor
+  const session = await getServerSession(authOptions);
+
   return (
     <html lang="pt-br">
       <body className={roboto.className}>
         <Providers>
-           <Header />
-            {children}
-          </Providers>
+          {/* Renderiza o Header apenas se o usuário estiver autenticado */}
+          {session && <Header />}
+          {children}
+        </Providers>
       </body>
     </html>
   );
