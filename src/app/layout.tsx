@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Providers from "@/components/Providers";
 import { Roboto } from "next/font/google";
+import Header from "@/components/Header";
 
 const roboto = Roboto({
   weight: ["300", "400", "500", "700"],
@@ -17,7 +18,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="pt-br">
       <body className={roboto.className}>
-        <Providers>{children}</Providers>
+        <Providers>
+           <Header />
+            {children}
+          </Providers>
       </body>
     </html>
   );

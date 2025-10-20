@@ -1,4 +1,4 @@
-// src/components/VideosTable.tsx
+
 "use client";
 
 import {
@@ -25,7 +25,10 @@ type VideoRow = {
   hashtag: string;
   publishedAt: string; // ISO
   driveWebView: string;
-  createdAt: string; // ISO
+  createdAt: string;
+  status?: string;
+  categoria?:string;
+  privacidade?:string;
 };
 
 export default function VideosTable({ videos }: { videos: VideoRow[] }) {
@@ -65,6 +68,7 @@ export default function VideosTable({ videos }: { videos: VideoRow[] }) {
               <TableCell>Hashtag</TableCell>
               <TableCell>Publicação</TableCell>
               <TableCell>Descrição</TableCell>
+              <TableCell>Status Publicação</TableCell>
               <TableCell align="right">Ações</TableCell>
             </TableRow>
           </TableHead>
@@ -83,6 +87,11 @@ export default function VideosTable({ videos }: { videos: VideoRow[] }) {
                 <TableCell sx={{ maxWidth: 360 }}>
                   <Typography noWrap title={v.description}>
                     {v.description}
+                  </Typography>
+                </TableCell>
+                <TableCell sx={{ maxWidth: 360 }}>
+                  <Typography noWrap title={v.status}>
+                    {v.status}
                   </Typography>
                 </TableCell>
                 <TableCell align="right">

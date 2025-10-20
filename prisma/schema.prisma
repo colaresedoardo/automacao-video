@@ -19,6 +19,14 @@ model User {
   accounts  Account[]
   sessions  Session[]
   videos    Video[]
+  status     UserStatus @default(PENDING) // PENDING | APPROVED | BLOCKED
+  role         UserRole   @default(USER)    // USER | ADMIN
+  
+  stripeCustomerId   String?
+  stripeSubscriptionId String?
+  plan               String?                         // ex.: "pro"
+  isActive           Boolean   @default(false)       // tem acesso pago?
+  activeUntil        DateTime?        
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -72,4 +80,18 @@ model Video {
   userId       String
   user         User     @relation(fields: [userId], references: [id])
   createdAt    DateTime @default(now())
+  status       String?  
+  categoria    String?  
+  privacidade  String?  
+}
+
+enum UserStatus {
+  PENDING
+  APPROVED
+  BLOCKED
+}
+
+enum UserRole {
+  USER
+  ADMIN
 }

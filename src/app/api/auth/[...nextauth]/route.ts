@@ -21,13 +21,34 @@ export const authOptions: NextAuthOptions = {
             "email",
             "profile",
             "https://www.googleapis.com/auth/drive.file",
-            "https://www.googleapis.com/auth/youtube.upload",
+            "https://www.googleapis.com/auth/youtube",
+
           ].join(" "),
         },
       },
     }),
   ],
   callbacks: {
+  async signIn({ user }) {
+      if (!user?.email) return false;
+
+      // Busca o usuário da sua base
+      const u = await prisma.user.findUnique({
+        where: { email: user.email, isActive: true },
+        select: { status: true, isActive: true },
+      });
+
+      // “cadastro prévio”: só entra se existir e aprovado
+      if (!u || u.status !== "APPROVED") {
+        // Opcional: redireciona para página explicando aprovação/pagamento
+        return "/acesso-restrito"; // ou return false; para erro padrão
+      }
+
+      // assinatura ativa:
+      // if (!u.isActive) return "/assinar"; // envia para paywall
+
+      return true;
+    },    
     async jwt({ token, user }) {
       if (user) {
         (token as any).id = (user as any).id; // garante id na session
@@ -40,6 +61,7 @@ export const authOptions: NextAuthOptions = {
       }
       return session;
     },
+
   },
 
   

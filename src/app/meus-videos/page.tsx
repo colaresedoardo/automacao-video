@@ -37,6 +37,10 @@ export default async function MeusVideosPage() {
       publishedAt: true,
       driveWebView: true,
       createdAt: true,
+      status: true,
+      categoria:true,
+      privacidade:true
+    
     },
   });
 
@@ -46,7 +50,7 @@ export default async function MeusVideosPage() {
     publishedAt: v.publishedAt.toISOString(),
     createdAt: v.createdAt.toISOString(),
   }));
-
+ console.log("Videos encontrados:", data);
 
   return <VideosTable videos={data} />;
 }
