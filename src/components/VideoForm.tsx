@@ -10,6 +10,8 @@ import {
   Stack,
   Snackbar,
   Alert,
+  Checkbox,
+  FormControlLabel,
 } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import dayjs, { Dayjs } from "dayjs";
@@ -24,6 +26,7 @@ export default function VideoForm() {
   const [titulo, setTitulo] = useState("");
   const [descricao, setDescricao] = useState("");
   const [hashtag, setHashtag] = useState("");
+  const [gerarHashtagIA, setGerarHashtagIA] = useState(false);
   const [dataPublicacao, setDataPublicacao] = useState<Dayjs | null>(dayjs());
   const [video, setVideo] = useState<File | null>(null);
 
@@ -31,7 +34,6 @@ export default function VideoForm() {
   const [message, setMessage] = useState<string>("");
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-
   const isSending = status === "sending";
 
   const videoPreviewUrl = useMemo(() => {
@@ -43,6 +45,7 @@ export default function VideoForm() {
     setTitulo("");
     setDescricao("");
     setHashtag("");
+    setGerarHashtagIA(false);
     setDataPublicacao(dayjs());
     setVideo(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
@@ -51,7 +54,14 @@ export default function VideoForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!titulo || !descricao || !hashtag || !dataPublicacao || !video) {
+    const camposFaltando =
+      !titulo ||
+      !descricao ||
+      !dataPublicacao ||
+      !video ||
+      (!gerarHashtagIA && !hashtag);
+
+    if (camposFaltando) {
       setMessage("Preencha todos os campos antes de enviar.");
       setStatus("error");
       return;
@@ -64,9 +74,13 @@ export default function VideoForm() {
       const fd = new FormData();
       fd.append("title", titulo.trim());
       fd.append("description", descricao.trim());
-      fd.append("hashtag", hashtag.trim());
       fd.append("publishedAt", dataPublicacao.toISOString());
       fd.append("file", video);
+      // Se marcado, backend decide gerar; se não, vai a hashtag digitada
+      fd.append("generateHashtagAI", String(gerarHashtagIA));
+      if (!gerarHashtagIA) {
+        fd.append("hashtag", hashtag.trim());
+      }
 
       const resp = await fetch("/api/videos", {
         method: "POST",
@@ -131,14 +145,30 @@ export default function VideoForm() {
           disabled={isSending}
         />
 
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={gerarHashtagIA}
+              onChange={(e) => setGerarHashtagIA(e.target.checked)}
+              disabled={isSending}
+            />
+          }
+          label="Gerar hashtag com IA de acordo a descrição?"
+        />
+
         <TextField
           label="Hashtag"
           value={hashtag}
           onChange={(e) => setHashtag(e.target.value)}
           placeholder="#exemplo"
-          required
           fullWidth
-          disabled={isSending}
+          disabled={isSending || gerarHashtagIA}
+          required={!gerarHashtagIA}
+          helperText={
+            gerarHashtagIA
+              ? "A hashtag será gerada automaticamente pela IA."
+              : "Você pode digitar a hashtag manualmente."
+          }
         />
 
         <DateTimePicker
@@ -197,7 +227,6 @@ export default function VideoForm() {
           </Button>
         </Stack>
 
-        {/* Feedback visual */}
         <Snackbar
           open={status === "success" || status === "error"}
           autoHideDuration={4000}

@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
   const publishedAtISO = String(form.get("publishedAt") ?? "");
   const file = form.get("file") as unknown as File | null;
 
-  if (!title || !description || !hashtag || !publishedAtISO || !file) {
+  if (!title || !description ||  !publishedAtISO || !file) {
     return NextResponse.json({ error: "Campos obrigatórios ausentes." }, { status: 400 });
   }
 
